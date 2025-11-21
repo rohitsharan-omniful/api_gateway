@@ -19,7 +19,7 @@ telemetry:
   slack:
     webhook_url: ""  # Set via SLACK_WEBHOOK_URL env var
     enabled: true
-    channel: "#alerts"
+    channel: ""
 
 # Retry Configuration
 retry:

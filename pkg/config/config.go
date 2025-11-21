@@ -111,7 +111,7 @@ func LoadConfig() (*GatewayConfig, error) {
 
 	// Telemetry - Slack
 	cfg.Telemetry.Slack.WebhookURL = getString(source, "SLACK_WEBHOOK_URL", "telemetry.slack.webhook_url", "")
-	cfg.Telemetry.Slack.Channel = getString(source, "SLACK_CHANNEL", "telemetry.slack.channel", "#alerts")
+	cfg.Telemetry.Slack.Channel = getString(source, "SLACK_CHANNEL", "telemetry.slack.channel", "")
 	cfg.Telemetry.Slack.Enabled = getBool(source, "SLACK_ENABLED", "telemetry.slack.enabled", true)
 
 	// Retry settings

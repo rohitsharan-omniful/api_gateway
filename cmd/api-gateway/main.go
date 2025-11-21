@@ -11,10 +11,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/yourorg/api-gateway/cmd/api-gateway/routes"
 	"github.com/yourorg/api-gateway/pkg/config"
-	"github.com/yourorg/api-gateway/pkg/telemetry"
+	apigatewaytelemetry "github.com/yourorg/api-gateway/pkg/telemetry"
 	"github.com/yourorg/go-service-kit/pkg/httpservice"
 	"github.com/yourorg/go-service-kit/pkg/logging"
 	"github.com/yourorg/go-service-kit/pkg/middleware"
+	"github.com/yourorg/go-service-kit/pkg/telemetry"
 )
 
 const ServiceName = "api_gateway"
@@ -38,7 +39,7 @@ func main() {
 	logger.Info("Starting API Gateway", logging.NewField("service", ServiceName))
 
 	// Initialize telemetry clients
-	newRelicClient, err := telemetry.NewNewRelicClient(telemetry.NewRelicConfig{
+	newRelicClient, err := apigatewaytelemetry.NewNewRelicClient(apigatewaytelemetry.NewRelicConfig{
 		LicenseKey: cfg.Telemetry.NewRelic.LicenseKey,
 		AppName:    cfg.Telemetry.NewRelic.AppName,
 		Enabled:    cfg.Telemetry.NewRelic.Enabled,
@@ -48,10 +49,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Initialize Slack client (from common-service)
 	slackClient := telemetry.NewSlackClient(telemetry.SlackConfig{
-		WebhookURL: cfg.Telemetry.Slack.WebhookURL,
-		Channel:    cfg.Telemetry.Slack.Channel,
-		Enabled:    cfg.Telemetry.Slack.Enabled,
+		WebhookURL:  cfg.Telemetry.Slack.WebhookURL,
+		ServiceName: "api_gateway", // Service name for Slack alerts
+		Channel:     cfg.Telemetry.Slack.Channel,
+		Enabled:     cfg.Telemetry.Slack.Enabled,
 	}, logger)
 
 	// Create HTTP server with custom middleware
