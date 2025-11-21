@@ -15,12 +15,12 @@ import (
 
 // SlackClient handles Slack webhook notifications with rate limiting.
 type SlackClient struct {
-	webhookURL string
-	logger     logging.Logger
-	enabled    bool
-	client     *http.Client
-	mu         sync.Mutex
-	lastSent   time.Time
+	webhookURL  string
+	logger      logging.Logger
+	enabled     bool
+	client      *http.Client
+	mu          sync.Mutex
+	lastSent    time.Time
 	minInterval time.Duration
 }
 
@@ -33,20 +33,20 @@ type SlackConfig struct {
 
 // SlackMessage represents a Slack webhook message.
 type SlackMessage struct {
-	Channel   string       `json:"channel,omitempty"`
-	Username  string       `json:"username,omitempty"`
-	IconEmoji string       `json:"icon_emoji,omitempty"`
-	Text      string       `json:"text,omitempty"`
+	Channel     string            `json:"channel,omitempty"`
+	Username    string            `json:"username,omitempty"`
+	IconEmoji   string            `json:"icon_emoji,omitempty"`
+	Text        string            `json:"text,omitempty"`
 	Attachments []SlackAttachment `json:"attachments,omitempty"`
 }
 
 // SlackAttachment represents a Slack message attachment.
 type SlackAttachment struct {
-	Color     string            `json:"color,omitempty"`
-	Title     string            `json:"title,omitempty"`
-	Text      string            `json:"text,omitempty"`
-	Fields    []SlackField      `json:"fields,omitempty"`
-	Timestamp int64             `json:"ts,omitempty"`
+	Color     string       `json:"color,omitempty"`
+	Title     string       `json:"title,omitempty"`
+	Text      string       `json:"text,omitempty"`
+	Fields    []SlackField `json:"fields,omitempty"`
+	Timestamp int64        `json:"ts,omitempty"`
 }
 
 // SlackField represents a field in a Slack attachment.
@@ -133,7 +133,7 @@ func (s *SlackClient) SendSlowRequestAlert(ctx interface{}, path string, duratio
 
 	color := "warning"
 	title := fmt.Sprintf("⚠️ Slow Request Detected - %s", ServiceName)
-	text := fmt.Sprintf("A slow request was detected in the API Gateway")
+	text := "A slow request was detected in the API Gateway"
 
 	fields := []SlackField{
 		{Title: "Path", Value: path, Short: true},
@@ -152,7 +152,7 @@ func (s *SlackClient) SendSlowRequestAlert(ctx interface{}, path string, duratio
 	}
 
 	msg := SlackMessage{
-		Text:       title,
+		Text:        title,
 		Attachments: []SlackAttachment{attachment},
 	}
 
@@ -179,7 +179,7 @@ func (s *SlackClient) SendErrorAlert(ctx interface{}, path, errorMsg string, sta
 
 	color := "danger"
 	title := fmt.Sprintf("🚨 Gateway Error - %s", ServiceName)
-	text := fmt.Sprintf("An error occurred in the API Gateway")
+	text := "An error occurred in the API Gateway"
 
 	fields := []SlackField{
 		{Title: "Path", Value: path, Short: true},
@@ -199,7 +199,7 @@ func (s *SlackClient) SendErrorAlert(ctx interface{}, path, errorMsg string, sta
 	}
 
 	msg := SlackMessage{
-		Text:       title,
+		Text:        title,
 		Attachments: []SlackAttachment{attachment},
 	}
 
@@ -231,4 +231,3 @@ func (s *SlackClient) RetrySendMessage(ctx context.Context, msg SlackMessage, ma
 		return s.SendMessage(ctx, msg)
 	})
 }
-

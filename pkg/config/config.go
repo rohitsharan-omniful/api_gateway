@@ -105,7 +105,7 @@ func LoadConfig() (*GatewayConfig, error) {
 	cfg.Downstream.HRMSCoreBaseURL = getString(source, "HRMS_CORE_BASE_URL", "downstream.hrms_core_base_url", "http://localhost:8081")
 
 	// Telemetry - New Relic
-	cfg.Telemetry.NewRelic.LicenseKey = getString(source, "NEWRELIC_LICENSE_KEY", "telemetry.newrelic.license_key", "")
+	cfg.Telemetry.NewRelic.LicenseKey = getString(source, "NEWRELIC_LICENSE_KEY", "telemetry.newrelic.license_key", "eu01xxa06b8a097f71d7a196573ddc98FFFFNRAL")
 	cfg.Telemetry.NewRelic.AppName = getString(source, "NEWRELIC_APP_NAME", "telemetry.newrelic.app_name", "api-gateway")
 	cfg.Telemetry.NewRelic.Enabled = getBool(source, "NEWRELIC_ENABLED", "telemetry.newrelic.enabled", true)
 
