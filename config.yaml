@@ -13,7 +13,7 @@ downstream:
 # Telemetry
 telemetry:
   newrelic:
-    license_key: ""  # Set via NEWRELIC_LICENSE_KEY env var
+    license_key: "eu01xxa06b8a097f71d7a196573ddc98FFFFNRAL"  # Set via NEWRELIC_LICENSE_KEY env var
     app_name: "api-gateway"
     enabled: true
   slack:
