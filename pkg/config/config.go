@@ -128,7 +128,7 @@ func LoadConfig() (*GatewayConfig, error) {
 	cfg.Retry.MaxDelayMs = getInt(source, "RETRY_MAX_DELAY_MS", "retry.max_delay_ms", 5000)
 
 	// JWT settings
-	cfg.JWT.SecretKey = getString(source, "JWT_SECRET_KEY", "jwt.secret_key", "")
+	cfg.JWT.SecretKey = getString(source, "JWT_SECRET_KEY", "jwt.secret_key", "33687a90-2f0c-43e5-971c-bcc4089f8e88")
 	cfg.JWT.AccessTokenExpiryMins = getInt(source, "JWT_ACCESS_TOKEN_EXPIRY_MINUTES", "jwt.access_token_expiry_minutes", 15)
 	cfg.JWT.RefreshTokenExpiryHrs = getInt(source, "JWT_REFRESH_TOKEN_EXPIRY_HOURS", "jwt.refresh_token_expiry_hours", 168)
 
