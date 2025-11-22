@@ -27,3 +27,9 @@ retry:
   initial_delay_ms: 100
   max_delay_ms: 5000
 
+# JWT Configuration
+jwt:
+  secret_key: "33687a90-2f0c-43e5-971c-bcc4089f8e88"  # Set via JWT_SECRET_KEY env var (REQUIRED, min 32 chars)
+  access_token_expiry_minutes: 15
+  refresh_token_expiry_hours: 168  # 7 days
+

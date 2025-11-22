@@ -3,19 +3,26 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/yourorg/api-gateway/pkg/config"
+	"github.com/yourorg/go-service-kit/pkg/jwt"
 	"github.com/yourorg/go-service-kit/pkg/logging"
 	gokitmiddleware "github.com/yourorg/go-service-kit/pkg/middleware"
 )
 
 var registrars []func(*gin.Engine)
+var protectedRegistrars []func(gin.IRouter)
 
-// Register adds a new route registrar to the list.
+// Register adds a new route registrar to the list (public routes).
 func Register(r func(*gin.Engine)) {
 	registrars = append(registrars, r)
 }
 
+// RegisterProtected adds a new route registrar for protected routes (requires JWT).
+func RegisterProtected(r func(gin.IRouter)) {
+	protectedRegistrars = append(protectedRegistrars, r)
+}
+
 // Init initializes the router with middleware and registers all routes.
-func Init(router *gin.Engine, logger logging.Logger, cfg *config.GatewayConfig, nrClient gokitmiddleware.TelemetryClient, slackClient gokitmiddleware.SlackClient) {
+func Init(router *gin.Engine, logger logging.Logger, cfg *config.GatewayConfig, nrClient gokitmiddleware.TelemetryClient, slackClient gokitmiddleware.SlackClient, jwtService *jwt.JWTService) {
 	serviceName := "api_gateway" // This could be passed as argument or constant
 
 	// Wire middleware chain (order matters!)
@@ -39,8 +46,18 @@ func Init(router *gin.Engine, logger logging.Logger, cfg *config.GatewayConfig, 
 		logger,
 	))
 
-	// Register all routes
+	// Register public routes (no JWT required)
 	for _, registrar := range registrars {
 		registrar(router)
+	}
+
+	// Create protected route group with JWT middleware
+	protected := router.Group("/")
+	protected.Use(jwt.JWTMiddleware(jwtService, logger))
+	{
+		// Register protected routes
+		for _, registrar := range protectedRegistrars {
+			registrar(protected)
+		}
 	}
 }
