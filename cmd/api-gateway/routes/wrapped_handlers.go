@@ -7,8 +7,8 @@ import (
 )
 
 func init() {
-	Register(func(r *gin.Engine) {
-		// Example wrapped handlers - zero boilerplate, automatic logging
+	RegisterProtected(func(r gin.IRouter) {
+		// Example wrapped handlers - zero boilerplate, automatic logging (JWT protected)
 		r.POST("/orders", httpservice.Wrap("CreateOrder", handlers.CreateOrderHandler))
 		r.GET("/example/error", httpservice.Wrap("ErrorExample", handlers.ErrorExampleHandler))
 		r.GET("/items/:id", httpservice.Wrap("ComplexBusinessLogic", handlers.ComplexBusinessLogicHandler))

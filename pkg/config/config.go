@@ -14,6 +14,7 @@ type GatewayConfig struct {
 	Downstream DownstreamConfig
 	Telemetry  TelemetryConfig
 	Retry      RetrySettings
+	JWT        JWTConfig
 }
 
 // GatewaySettings holds gateway-specific settings.
@@ -62,6 +63,13 @@ type RetrySettings struct {
 	MaxAttempts    int
 	InitialDelayMs int
 	MaxDelayMs     int
+}
+
+// JWTConfig holds JWT configuration.
+type JWTConfig struct {
+	SecretKey             string
+	AccessTokenExpiryMins int
+	RefreshTokenExpiryHrs int
 }
 
 // LoadConfig loads configuration from environment variables and config.yaml.
@@ -118,6 +126,11 @@ func LoadConfig() (*GatewayConfig, error) {
 	cfg.Retry.MaxAttempts = getInt(source, "RETRY_MAX_ATTEMPTS", "retry.max_attempts", 3)
 	cfg.Retry.InitialDelayMs = getInt(source, "RETRY_INITIAL_DELAY_MS", "retry.initial_delay_ms", 100)
 	cfg.Retry.MaxDelayMs = getInt(source, "RETRY_MAX_DELAY_MS", "retry.max_delay_ms", 5000)
+
+	// JWT settings
+	cfg.JWT.SecretKey = getString(source, "JWT_SECRET_KEY", "jwt.secret_key", "")
+	cfg.JWT.AccessTokenExpiryMins = getInt(source, "JWT_ACCESS_TOKEN_EXPIRY_MINUTES", "jwt.access_token_expiry_minutes", 15)
+	cfg.JWT.RefreshTokenExpiryHrs = getInt(source, "JWT_REFRESH_TOKEN_EXPIRY_HOURS", "jwt.refresh_token_expiry_hours", 168)
 
 	return cfg, nil
 }

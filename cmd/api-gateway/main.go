@@ -11,8 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/yourorg/api-gateway/cmd/api-gateway/routes"
 	"github.com/yourorg/api-gateway/pkg/config"
-	apigatewaytelemetry "github.com/yourorg/api-gateway/pkg/telemetry"
 	"github.com/yourorg/go-service-kit/pkg/httpservice"
+	"github.com/yourorg/go-service-kit/pkg/jwt"
 	"github.com/yourorg/go-service-kit/pkg/logging"
 	"github.com/yourorg/go-service-kit/pkg/middleware"
 	"github.com/yourorg/go-service-kit/pkg/telemetry"
@@ -39,10 +39,11 @@ func main() {
 	logger.Info("Starting API Gateway", logging.NewField("service", ServiceName))
 
 	// Initialize telemetry clients
-	newRelicClient, err := apigatewaytelemetry.NewNewRelicClient(apigatewaytelemetry.NewRelicConfig{
-		LicenseKey: cfg.Telemetry.NewRelic.LicenseKey,
-		AppName:    cfg.Telemetry.NewRelic.AppName,
-		Enabled:    cfg.Telemetry.NewRelic.Enabled,
+	newRelicClient, err := telemetry.NewNewRelicClient(telemetry.NewRelicConfig{
+		LicenseKey:  cfg.Telemetry.NewRelic.LicenseKey,
+		AppName:     cfg.Telemetry.NewRelic.AppName,
+		ServiceName: "api_gateway", // Service name for telemetry
+		Enabled:     cfg.Telemetry.NewRelic.Enabled,
 	}, logger)
 	if err != nil {
 		logger.Error("Failed to initialize New Relic client", logging.NewField("error", err))
@@ -56,6 +57,17 @@ func main() {
 		Channel:     cfg.Telemetry.Slack.Channel,
 		Enabled:     cfg.Telemetry.Slack.Enabled,
 	}, logger)
+
+	// Initialize JWT service
+	jwtService, err := jwt.NewJWTServiceFromConfig(jwt.Config{
+		SecretKey:             cfg.JWT.SecretKey,
+		AccessTokenExpiryMins: cfg.JWT.AccessTokenExpiryMins,
+		RefreshTokenExpiryHrs: cfg.JWT.RefreshTokenExpiryHrs,
+	}, logger)
+	if err != nil {
+		logger.Error("Failed to initialize JWT service", logging.NewField("error", err))
+		os.Exit(1)
+	}
 
 	// Create HTTP server with custom middleware
 	serverConfig := httpservice.ServerConfig{
@@ -78,6 +90,7 @@ func main() {
 		Config:      cfg,
 		NrClient:    newRelicClient,
 		SlackClient: slackClient,
+		JWTService:  jwtService,
 	}
 
 	server, err := httpservice.NewServer(serverConfig, handler)
@@ -131,9 +144,10 @@ type GatewayHandler struct {
 	Config      *config.GatewayConfig
 	NrClient    middleware.TelemetryClient
 	SlackClient middleware.SlackClient
+	JWTService  *jwt.JWTService
 }
 
 // Register registers routes with the router.
 func (h *GatewayHandler) Register(router *gin.Engine) {
-	routes.Init(router, h.Logger, h.Config, h.NrClient, h.SlackClient)
+	routes.Init(router, h.Logger, h.Config, h.NrClient, h.SlackClient, h.JWTService)
 }
